@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traduire une vidéo turque en français</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .required {
+            color: #e74c3c;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        input[type="file"]:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 150px;
+            transition: all 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .progress {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+            width: 0%;
+        }
+
+        .progress-text {
+            margin-top: 8px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+            font-size: 14px;
+        }
+
+        .success {
+            background: #efe;
+            color: #363;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+            font-size: 14px;
+        }
+
+        .file-info {
+            margin-top: 8px;
+            color: #666;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎬 Traduire une vidéo turque en français</h1>
+        <p class="subtitle">Téléchargez votre vidéo (sans son) et collez la transcription turque</p>
+
+        <form id="uploadForm">
+            <div class="form-group">
+                <label for="video">
+                    Vidéo MP4 (sans son) <span class="required">*</span>
+                </label>
+                <input type="file" id="video" accept=".mp4" required>
+                <div class="file-info" id="fileInfo"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="transcript">
+                    Transcription turque (sans timestamps) <span class="required">*</span>
+                </label>
+                <textarea 
+                    id="transcript" 
+                    placeholder="Collez ici la transcription en turc..."
+                    required
+                ></textarea>
+            </div>
+
+            <button type="submit" class="btn" id="submitBtn">
+                🚀 Générer la vidéo en français
+            </button>
+
+            <div class="progress" id="progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">Uploading...</div>
+            </div>
+
+            <div class="error" id="error"></div>
+            <div class="success" id="success"></div>
+        </form>
+    </div>
+
+    <script>
+        const form = document.getElementById('uploadForm');
+        const videoInput = document.getElementById('video');
+        const transcriptInput = document.getElementById('transcript');
+        const submitBtn = document.getElementById('submitBtn');
+        const progress = document.getElementById('progress');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const errorDiv = document.getElementById('error');
+        const successDiv = document.getElementById('success');
+        const fileInfo = document.getElementById('fileInfo');
+
+        // IMPORTANT: Remplace cette URL par l'URL de ton webhook n8n
+        const N8N_WEBHOOK_URL = 'https://n8n.growthacker.tech/webhook/turkish-french-video';
+
+        // Show file info when selected
+        videoInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const sizeMB = (file.size / 1024 / 1024).toFixed(2);
+                fileInfo.textContent = `📁 ${file.name} (${sizeMB} MB)`;
+            }
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const videoFile = videoInput.files[0];
+            const transcript = transcriptInput.value;
+
+            if (!videoFile || !transcript) {
+                showError('Veuillez remplir tous les champs requis');
+                return;
+            }
+
+            // Reset messages
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+
+            try {
+                // Step 1: Upload video to tmpfiles.org
+                submitBtn.disabled = true;
+                progress.style.display = 'block';
+                updateProgress(10, 'Upload de la vidéo vers tmpfiles.org...');
+
+                const formData = new FormData();
+                formData.append('file', videoFile);
+
+                const uploadResponse = await fetch('https://tmpfiles.org/api/v1/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!uploadResponse.ok) {
+                    throw new Error('Échec de l\'upload de la vidéo');
+                }
+
+                const uploadResult = await uploadResponse.json();
+                updateProgress(40, 'Vidéo uploadée! Préparation...');
+
+                // Convert tmpfiles URL to direct download link
+                const tmpUrl = uploadResult.data.url;
+                const videoUrl = tmpUrl.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
+
+                updateProgress(50, 'Envoi à n8n...');
+
+                // Step 2: Send to n8n webhook
+                const n8nResponse = await fetch(N8N_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        video_url: videoUrl,
+                        transcript: transcript
+                    })
+                });
+
+                if (!n8nResponse.ok) {
+                    throw new Error('Échec de la soumission à n8n');
+                }
+
+                updateProgress(100, 'Terminé!');
+                
+                showSuccess('✅ Vidéo soumise avec succès! Le traitement a commencé. Vous recevrez la vidéo traduite dans quelques minutes.');
+                
+                // Reset form
+                form.reset();
+                fileInfo.textContent = '';
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showError('❌ Erreur: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                setTimeout(() => {
+                    progress.style.display = 'none';
+                    progressFill.style.width = '0%';
+                }, 2000);
+            }
+        });
+
+        function updateProgress(percent, text) {
+            progressFill.style.width = percent + '%';
+            progressText.textContent = text;
+        }
+
+        function showError(message) {
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function showSuccess(message) {
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
