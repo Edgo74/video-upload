@@ -280,7 +280,7 @@
                 await fetch(PROXY_URL, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ french_transcript: theTranscript })
+                body: JSON.stringify({ french_transcript: transcript })
                 });
 
                 if (!n8nResponse.ok) {
