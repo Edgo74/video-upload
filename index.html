@@ -276,15 +276,11 @@
                 updateProgress(50, 'Envoi à n8n...');
 
                 // Step 2: Send to n8n webhook
-                const n8nResponse = await fetch(N8N_WEBHOOK_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        video_url: videoUrl,
-                        transcript: transcript
-                    })
+                const PROXY_URL = 'https://loquacious-bienenstitch-115f92.netlify.app/.netlify/functions/proxy-n8n';
+                await fetch(PROXY_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ french_transcript: theTranscript })
                 });
 
                 if (!n8nResponse.ok) {
